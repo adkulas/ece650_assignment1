@@ -1,7 +1,7 @@
 --- # Personal information
-first: FIRST_NAME
-last: LAST_NAME
-watiam: WATIAM_ID
-student: STUDENT_ID
-email: email
+first: Adam
+last: Kulas
+watiam: akulas
+student: 20302000
+email: akulas@uwaterloo.ca
 ...

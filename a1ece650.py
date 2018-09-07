@@ -10,7 +10,7 @@ def main():
     ### by the assignment
     while True:
         line = sys.stdin.readline()
-        if line == '':
+        if line == '\n':
             break
         print 'read a line:', line
 
