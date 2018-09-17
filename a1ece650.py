@@ -3,26 +3,28 @@ import shlex
 import cmd
 import argparse
 import re
-print sys.executable
+from __future__ import print_function
+
+print(sys.executable)
 class Cameraprog(cmd.Cmd):
     def __init__(self):
         cmd.Cmd.__init__(self)
         self.intro = 'Welcome to the camera optimizer program. Type help or ? to list commands'
 
     def do_a(self, line):
-        print 'doing command /"a/"'
+        print('doing command /"a/"')
     
     def help_a(self):
-        print 'this is help string for \"a"'
+        print('this is help string for \"a"')
 
     def do_r(self, line):
-        print 'doing command /"r/"'
+        print('doing command /"r/"')
 
     def do_c(self, line):
-        print 'doing command /"c/"'
+        print('doing command /"c/"')
 
     def do_g(self, line):
-        print 'doing command /"g/"'
+        print ('doing command /"g/"')
 
     def precmd(self, line):
         return line
@@ -35,15 +37,26 @@ class Cameraprog(cmd.Cmd):
 
     def postloop(self):
         #Cleanup and gracefully exit
-        sys.exit(0)
+        pass
 
     def default(self, line):
-        print 'Error: The command you entered was not found'
-        print line
+        print('Error: The command you entered was not found')
+        print(line)
 
     def emptyline(self):
         pass
-        
+    
+class Graph(object):
+    def __init__(self):
+        self.V = {}
+        self.E = {}
+    
+    def __repr__(self):
+        print("These are the vertices")
+        print(self.V)
+        print("These are the edges")
+        print(self.E)
+
 def parse(args):
     parser = argparse.ArgumentParser()
     parser.add_argument('command', choices=['a','c','r','g'])
@@ -55,16 +68,16 @@ def parse(args):
         print 'FAILURE ABORT'
         return False
     check_coordinate_input(args.coords)
-    print args.coords
+    print(args.coords)
     return args.command, args.street_name, args.coords
 
 def check_coordinate_input(coords):
     if len(coords)==0:
-        print "Error: No coordinates were entered"
+        print("Error: No coordinates were entered")
         return False
     for coord in coords:
         if not(coord.startswith('(') and coord.endswith(')')):
-            print 'Error: coordinate \"%s\" does not start with \'(\' and end with \')\'' % coord
+            print('Error: coordinate \"%s\" does not start with \'(\' and end with \')\'') % coord
 
 def main(args):
     program = Cameraprog()
