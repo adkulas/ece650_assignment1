@@ -48,14 +48,16 @@ class Cameraprog(cmd.Cmd):
     
 class Graph(object):
     def __init__(self):
-        self.V = {}
-        self.E = {}
+        self.vertices = {}
+        self.edges = {}
     
     def __repr__(self):
         print("These are the vertices")
-        print(self.V)
+        print(self.vertices)
         print("These are the edges")
-        print(self.E)
+        print(self.edges)
+        # comment
+
 
 def parse(args):
     parser = argparse.ArgumentParser()
