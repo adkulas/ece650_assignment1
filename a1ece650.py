@@ -1,9 +1,9 @@
+from __future__ import print_function
 import sys
 import shlex
 import cmd
 import argparse
 import re
-from __future__ import print_function
 
 print(sys.executable)
 class Cameraprog(cmd.Cmd):
@@ -13,6 +13,10 @@ class Cameraprog(cmd.Cmd):
 
     def do_a(self, line):
         print('doing command /"a/"')
+        try:
+            raise Exception('asdf')
+        except Exception as e:
+            print(e)
     
     def help_a(self):
         print('this is help string for \"a"')
@@ -56,8 +60,6 @@ class Graph(object):
         print(self.vertices)
         print("These are the edges")
         print(self.edges)
-        # comment
-
 
 def parse(args):
     parser = argparse.ArgumentParser()
@@ -67,7 +69,7 @@ def parse(args):
     try:
         args = parser.parse_args(shlex.split(line))
     except SystemExit:
-        print 'FAILURE ABORT'
+        print('FAILURE ABORT')
         return False
     check_coordinate_input(args.coords)
     print(args.coords)
