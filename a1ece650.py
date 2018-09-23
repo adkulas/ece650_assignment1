@@ -9,11 +9,34 @@ import re
 print(sys.executable)
 print(sys.version_info)
 class Cameraprog(cmd.Cmd):
+    intro = 'Welcome to the camera optimizer program. Type help or ? to list commands'
+    prompt = '=->'
+    use_rawinput = 0
 
     def __init__(self):
         cmd.Cmd.__init__(self)
-        self.intro = 'Welcome to the camera optimizer program. Type help or ? to list commands'
         self.graph = Graph()
+    
+    def parseline(self, line):
+        """OVERRIDE parseline method
+        Parse the line into a command name and a string containing
+        the arguments.  Returns a tuple containing (command, args, line).
+        'command' and 'args' may be None if the line couldn't be parsed.
+        """
+        line = line.strip()
+        if not line:
+            return None, None, line
+        elif line[0] == '?':
+            line = 'help ' + line[1:]
+        elif line[0] == '!':
+            if hasattr(self, 'do_shell'):
+                line = 'shell ' + line[1:]
+            else:
+                return None, None, line
+        i, n = 0, len(line)
+        while i < n and line[i] in self.identchars: i = i+1
+        cmd, arg = line[:i], line[i:].strip()
+        return cmd, arg, line
     
     def do_a(self, args):
         """
@@ -46,6 +69,7 @@ class Cameraprog(cmd.Cmd):
         return line
 
     def postcmd(self, stop, line):
+        """Hook method executed just after a command dispatch is finished.""" 
         #If line empty, exit program
         if not line:
             stop = True
@@ -98,8 +122,6 @@ def check_coordinate_input(coords):
 
 def main(args):
     program = Cameraprog()
-    program.prompt = '=-> ' 
-    program.use_rawinput = False
     program.cmdloop()
 
     return 0
