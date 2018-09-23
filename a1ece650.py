@@ -1,4 +1,5 @@
 from __future__ import print_function
+from __future__ import division
 import sys
 import shlex
 import cmd
@@ -6,29 +7,40 @@ import argparse
 import re
 
 print(sys.executable)
+print(sys.version_info)
 class Cameraprog(cmd.Cmd):
+
     def __init__(self):
         cmd.Cmd.__init__(self)
         self.intro = 'Welcome to the camera optimizer program. Type help or ? to list commands'
-
-    def do_a(self, line):
-        print('doing command /"a/"')
-        try:
-            raise Exception('asdf')
-        except Exception as e:
-            print(e)
+        self.graph = Graph()
     
-    def help_a(self):
-        print('this is help string for \"a"')
+    def do_a(self, args):
+        """
+        This is the help string for the add command
+        """
+        print('doing command a with', args)
+        print(parse(args))
+        self.graph.add_street(parse(args))
 
-    def do_r(self, line):
-        print('doing command /"r/"')
+    def do_r(self, args):
+        """
+        This is the help string for the remove command
+        """
+        print('doing command r')
 
-    def do_c(self, line):
-        print('doing command /"c/"')
+    def do_c(self, args):
+        """
+        This is the help string for the change command
+        """
+        print('doing command c')
 
-    def do_g(self, line):
-        print ('doing command /"g/"')
+    def do_g(self, args):
+        """
+        This is the help string for the graph command
+        """
+        print ('doing command g')
+        print(self.graph)
 
     def precmd(self, line):
         return line
@@ -38,6 +50,8 @@ class Cameraprog(cmd.Cmd):
         if not line:
             stop = True
         return stop
+    def preloop(self):
+        pass
 
     def postloop(self):
         #Cleanup and gracefully exit
@@ -52,28 +66,27 @@ class Cameraprog(cmd.Cmd):
     
 class Graph(object):
     def __init__(self):
+        self.history = {}
         self.vertices = {}
         self.edges = {}
     
-    def __repr__(self):
-        print("These are the vertices")
+    def __str__(self):
+        print('This is the history of commands')
+        print(self.history)
+        print('These are the vertices')
         print(self.vertices)
-        print("These are the edges")
+        print('These are the edges')
         print(self.edges)
+        return '.'
+
+    def add_street(self, args):
+        street = args[0]
+        vertices = args[1:]
+        self.history[street] = vertices
 
 def parse(args):
-    parser = argparse.ArgumentParser()
-    parser.add_argument('command', choices=['a','c','r','g'])
-    parser.add_argument('street_name')
-    parser.add_argument('coords', nargs='+')
-    try:
-        args = parser.parse_args(shlex.split(line))
-    except SystemExit:
-        print('FAILURE ABORT')
-        return False
-    check_coordinate_input(args.coords)
-    print(args.coords)
-    return args.command, args.street_name, args.coords
+    args = shlex.split(args)
+    return args
 
 def check_coordinate_input(coords):
     if len(coords)==0:
