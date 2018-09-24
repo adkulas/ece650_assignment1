@@ -96,7 +96,7 @@ class Graph(object):
     def __str__(self):
         string = 'V = {\n'
         for k, v in self.vertices:
-            string += '{0}: {1}\n'.format(str(k),str(v))
+            string += '{0}: ({1:.2f})\n'.format(str(k),str(v))
         string += '}\nE = {\n'
         for k, v in self.edges:
             string += '<{0},{1}>,\n'.format(v[0],v[1])
@@ -108,7 +108,7 @@ class Graph(object):
         return string
 
     def add_street(self, street, vertices):
-        # type: (str, list) -> None
+        # type: (str, list) -> Bool
         if vertices:
             if street in self.history:
                 print('Error: You already have {0} in the graph'.format(street))
@@ -121,7 +121,7 @@ class Graph(object):
         return False
 
     def change_street(self, street, vertices):
-        # type: (str, list) -> None
+        # type: (str, list) -> Bool
         if vertices:
             if street in self.history:
                 self.history[street] = vertices
@@ -133,9 +133,8 @@ class Graph(object):
 
         return False
 
-
     def remove_street(self, street, *args):
-        # type: (str, list) -> None
+        # type: (str, list) -> Bool
         if street in self.history:
             del self.history[street]
             return True
@@ -164,6 +163,26 @@ def parse(args):
     parsed_args = [street, parsed_vertices]
  
     return parsed_args
+
+def intersect (p_1, p_2, p_3, p_4):
+    x1, y1 = p_1[0], p_1[1]
+    x2, y2 = p_2[0], p_2[1]
+    x3, y3 = p_3[0], p_3[1]
+    x4, y4 = p_4[0], p_4[1]
+
+    xnum = ((x1*y2-y1*x2)*(x3-x4) - (x1-x2)*(x3*y4-y3*x4))
+    xden = ((x1-x2)*(y3-y4) - (y1-y2)*(x3-x4))
+
+    ynum = (x1*y2 - y1*x2)*(y3-y4) - (y1-y2)*(x3*y4-y3*x4)
+    yden = (x1-x2)*(y3-y4) - (y1-y2)*(x3-x4)
+    try:
+        xcoor =  xnum / xden    
+        ycoor = ynum / yden
+    except ZeroDivisionError:
+        xcoor = None
+        ycoor = None
+
+    return (xcoor, ycoor)
 
 def check_coordinate_input(coords):
     if len(coords)==0:
