@@ -56,7 +56,7 @@ class Cameraprog(cmd.Cmd):
         """
         This is the help string for the change command
         """
-        print('doing command c')
+        self.graph.change_street(*parse(args))
 
     def do_g(self, args):
         """
@@ -104,10 +104,6 @@ class Graph(object):
         
         print('This is the history of commands')
         print(self.history)
-        print('These are the vertices')
-        print(self.vertices)
-        print('These are the edges')
-        print(self.edges)
 
         return string
 
@@ -123,6 +119,20 @@ class Graph(object):
             print('Error: a command has no vertices specified')
 
         return False
+
+    def change_street(self, street, vertices):
+        # type: (str, list) -> None
+        if vertices:
+            if street in self.history:
+                self.history[street] = vertices
+            else:
+                print('Error: c specified for a street \"{0}\" that does not exist'.format(street))
+                return True
+        else:
+            print('Error: c command has no vertices specified')
+
+        return False
+
 
     def remove_street(self, street, *args):
         # type: (str, list) -> None
