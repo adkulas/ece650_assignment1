@@ -34,7 +34,7 @@ class Cameraprog(cmd.Cmd):
             else:
                 return None, None, line
         i, n = 0, len(line)
-        while i < n and line[i] in self.identchars: i = i+1
+        while i < n and line[i] != ' ': i = i+1
         cmd, arg = line[:i], line[i:].strip()
         return cmd, arg, line
     
@@ -44,7 +44,7 @@ class Cameraprog(cmd.Cmd):
         """
         print('doing command a with', args)
         print(parse(args))
-        self.graph.add_street(parse(args))
+        self.graph.add_street(*parse(args))
 
     def do_r(self, args):
         """
@@ -103,14 +103,46 @@ class Graph(object):
         print(self.edges)
         return '.'
 
-    def add_street(self, args):
-        street = args[0]
-        vertices = args[1:]
-        self.history[street] = vertices
+    def add_street(self, street, vertices):
+        # type: (str, list) -> None
+        if vertices:
+            if street in self.history:
+                print('Error: You already have {0} in the graph'.format(street))
+            else:
+                self.history[street] = vertices
+        else:
+            print('Error: a command has no vertices specified')
+
+        return None
+
+    def remove_street(self, street, *args):
+        # type: (str, list) -> None
+        if street in self.history:
+            del self.history[street]
+        else:
+            print('Error: r specified for a street \"{0}\" that does not exist'.format(street))
+        return None
 
 def parse(args):
-    args = shlex.split(args)
-    return args
+    """return a list [street, [list of points]]"""
+    tmp = shlex.split(args)
+    street = tmp[0].lower()
+    if len(tmp) > 1:
+        vertices = ''.join(tmp[1:])
+        # matches (dig, dig) including whitespaces
+        # regex = '\((\s*\d+\s*)?,(\s*\d+\s*)?\)+?'
+        # match everything between '(' and ')'
+        regex = r'\((.+?)\)+?'
+        vertices = re.findall(regex, vertices)
+        parsed_vertices = []
+        for vertex in vertices:
+            parsed_vertices.append(tuple([int(x) for x in vertex.split(',')]))  
+    else:
+        parsed_vertices = None
+    
+    parsed_args = [street, parsed_vertices]
+ 
+    return parsed_args
 
 def check_coordinate_input(coords):
     if len(coords)==0:
