@@ -50,7 +50,7 @@ class Cameraprog(cmd.Cmd):
         """
         This is the help string for the remove command
         """
-        print('doing command r')
+        self.graph.remove_street(*parse(args))
 
     def do_c(self, args):
         """
@@ -62,7 +62,6 @@ class Cameraprog(cmd.Cmd):
         """
         This is the help string for the graph command
         """
-        print ('doing command g')
         print(self.graph)
 
     def precmd(self, line):
@@ -95,13 +94,22 @@ class Graph(object):
         self.edges = {}
     
     def __str__(self):
+        string = 'V = {\n'
+        for k, v in self.vertices:
+            string += '{0}: {1}\n'.format(str(k),str(v))
+        string += '}\nE = {\n'
+        for k, v in self.edges:
+            string += '<{0},{1}>,\n'.format(v[0],v[1])
+        string += '\n}'
+        
         print('This is the history of commands')
         print(self.history)
         print('These are the vertices')
         print(self.vertices)
         print('These are the edges')
         print(self.edges)
-        return '.'
+
+        return string
 
     def add_street(self, street, vertices):
         # type: (str, list) -> None
@@ -110,18 +118,21 @@ class Graph(object):
                 print('Error: You already have {0} in the graph'.format(street))
             else:
                 self.history[street] = vertices
+                return True
         else:
             print('Error: a command has no vertices specified')
 
-        return None
+        return False
 
     def remove_street(self, street, *args):
         # type: (str, list) -> None
         if street in self.history:
             del self.history[street]
+            return True
         else:
             print('Error: r specified for a street \"{0}\" that does not exist'.format(street))
-        return None
+        
+        return False
 
 def parse(args):
     """return a list [street, [list of points]]"""
