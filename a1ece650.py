@@ -182,15 +182,12 @@ def intersect (p_1, p_2, p_3, p_4):
         xcoor = None
         ycoor = None
 
-    return (xcoor, ycoor)
+    seg1_xmin = min(x1,x2)
+    seg1_xmax = max(x1,x2)
+    seg2_xmin = min(x3,x4)
+    seg2_xmax = max(x3,x4)
 
-def check_coordinate_input(coords):
-    if len(coords)==0:
-        print("Error: No coordinates were entered")
-        return False
-    for coord in coords:
-        if not(coord.startswith('(') and coord.endswith(')')):
-            print('Error: coordinate \"%s\" does not start with \'(\' and end with \')\'') % coord
+    return (xcoor, ycoor)
 
 def main(args):
     program = Cameraprog()
