@@ -181,11 +181,25 @@ def intersect (p_1, p_2, p_3, p_4):
     except ZeroDivisionError:
         xcoor = None
         ycoor = None
+        return (xcoor, ycoor)
 
     seg1_xmin = min(x1,x2)
     seg1_xmax = max(x1,x2)
     seg2_xmin = min(x3,x4)
     seg2_xmax = max(x3,x4)
+    seg1_ymin = min(y1,y2)
+    seg1_ymax = max(y1,y2)
+    seg2_ymin = min(y3,y4)
+    seg2_ymax = max(y3,y4)
+    x_interval = (max(seg1_xmin, seg2_xmin), min(seg1_xmax, seg2_xmax))
+    y_interval = (max(seg1_ymin, seg2_ymin), min(seg1_ymax, seg2_ymax))
+
+    if (xcoor < x_interval[0] or 
+        xcoor > x_interval[1] or
+        ycoor < y_interval[0] or 
+        ycoor > y_interval[1]):
+        xcoor = None
+        ycoor = None
 
     return (xcoor, ycoor)
 
