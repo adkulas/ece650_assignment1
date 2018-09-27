@@ -96,7 +96,11 @@ class Graph(object):
     def __str__(self):
         string = 'V = {\n'
         for k, v in self.vertices.iteritems():
-            string += '{0}: ({1},{2})\n'.format( k, round(v[0], 3), round(v[1], 3) )
+            if type(v[0]) == 'float' or type(v[1]) == 'float':
+                xcoord, ycoord = round(v[0], 3), round(v[1], 3)
+            else:
+                xcoord, ycoord = v[0], v[1] 
+            string += '{0}: ({1},{2})\n'.format( k, xcoord, ycoord)
         string += '}\nE = {\n'
         for edge in self.edges:
             tmp = list(edge)
@@ -142,6 +146,8 @@ class Graph(object):
         return False
 
     def render_graph(self):
+        self.vertices = {}
+        self.edges = set([])
         i = 1
         for street, vertices in self.history.iteritems():
             for index, vertex in enumerate(vertices):
@@ -150,8 +156,6 @@ class Graph(object):
                     self.edges.add(frozenset([str(i-1), str(i)]))
                 i += 1
         return
-            
-
 
 def parse(args):
     """return a list [street, [list of points]]"""
