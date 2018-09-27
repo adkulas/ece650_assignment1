@@ -155,8 +155,16 @@ def parse(args):
         regex = r'\((.+?)\)+?'
         vertices = re.findall(regex, vertices)
         parsed_vertices = []
-        for vertex in vertices:
-            parsed_vertices.append(tuple([int(x) for x in vertex.split(',')]))  
+        try:        
+            for vertex in vertices:
+                parsed_vertices.append(tuple([int(x) for x in vertex.split(',')]))  
+        except:
+            print('Error: Vertices entered could not be parsed')
+            parsed_vertices = None
+        
+        if len(parsed_vertices) == 0:
+            print('Error: No valid vertices were entered')
+            parsed_vertices = None
     else:
         parsed_vertices = None
     
@@ -164,7 +172,9 @@ def parse(args):
  
     return parsed_args
 
-def intersect (p_1, p_2, p_3, p_4):
+def intersect(p_1, p_2, p_3, p_4):
+    # type: (Tuple[int, int], Tuple[int, int], Tuple[int, int], Tuple[int, int]) -> Tuple[float, float]
+
     x1, y1 = p_1[0], p_1[1]
     x2, y2 = p_2[0], p_2[1]
     x3, y3 = p_3[0], p_3[1]
@@ -194,10 +204,8 @@ def intersect (p_1, p_2, p_3, p_4):
     x_interval = (max(seg1_xmin, seg2_xmin), min(seg1_xmax, seg2_xmax))
     y_interval = (max(seg1_ymin, seg2_ymin), min(seg1_ymax, seg2_ymax))
 
-    if (xcoor < x_interval[0] or 
-        xcoor > x_interval[1] or
-        ycoor < y_interval[0] or 
-        ycoor > y_interval[1]):
+    if (xcoor < x_interval[0] or xcoor > x_interval[1] or
+        ycoor < y_interval[0] or ycoor > y_interval[1]):
         xcoor = None
         ycoor = None
 
