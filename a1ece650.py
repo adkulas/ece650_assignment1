@@ -62,6 +62,7 @@ class Cameraprog(cmd.Cmd):
         """
         This is the help string for the graph command
         """
+        self.graph.render_graph()
         print(self.graph)
 
     def precmd(self, line):
@@ -85,33 +86,30 @@ class Cameraprog(cmd.Cmd):
         print(line)
 
     def emptyline(self):
-        pass
-    
+        pass    
 class Graph(object):
     def __init__(self):
         self.history = {}
         self.vertices = {}
-        self.edges = {}
+        self.edges = set([])
     
     def __str__(self):
         string = 'V = {\n'
-        for k, v in self.vertices:
-            string += '{0}: ({1:.2f})\n'.format(str(k),str(v))
+        for k, v in self.vertices.iteritems():
+            string += '{0}: ({1},{2})\n'.format( k, round(v[0], 3), round(v[1], 3) )
         string += '}\nE = {\n'
-        for k, v in self.edges:
-            string += '<{0},{1}>,\n'.format(v[0],v[1])
-        string += '\n}'
-        
-        print('This is the history of commands')
-        print(self.history)
+        for edge in self.edges:
+            tmp = list(edge)
+            string += '<{0},{1}>,\n'.format(tmp[0],tmp[1])
+        string = string[:-2] + '\n}'
 
         return string
 
     def add_street(self, street, vertices):
-        # type: (str, list) -> Bool
+        # type: (str, List[Tuple(int, int), ...]) -> Bool
         if vertices:
             if street in self.history:
-                print('Error: You already have {0} in the graph'.format(street))
+                print('Error: You already have \"{0}\" in the graph'.format(street))
             else:
                 self.history[street] = vertices
                 return True
@@ -121,20 +119,20 @@ class Graph(object):
         return False
 
     def change_street(self, street, vertices):
-        # type: (str, list) -> Bool
+        # type: (str, List[Tuple(int, int), ...]) -> Bool
         if vertices:
             if street in self.history:
                 self.history[street] = vertices
+                return True
             else:
                 print('Error: c specified for a street \"{0}\" that does not exist'.format(street))
-                return True
         else:
             print('Error: c command has no vertices specified')
 
         return False
 
     def remove_street(self, street, *args):
-        # type: (str, list) -> Bool
+        # type: (str, List[Tuple(int, int), ...]) -> Bool
         if street in self.history:
             del self.history[street]
             return True
@@ -142,6 +140,18 @@ class Graph(object):
             print('Error: r specified for a street \"{0}\" that does not exist'.format(street))
         
         return False
+
+    def render_graph(self):
+        i = 1
+        for street, vertices in self.history.iteritems():
+            for index, vertex in enumerate(vertices):
+                self.vertices[str(i)] = vertex
+                if index > 0:
+                    self.edges.add(frozenset([str(i-1), str(i)]))
+                i += 1
+        return
+            
+
 
 def parse(args):
     """return a list [street, [list of points]]"""
@@ -219,3 +229,15 @@ def main(args):
 
 if __name__ == '__main__':
     sys.exit(main(sys.argv))
+
+'''
+test inputs:
+a "Weber Street" (2,-1) (2,2) (5,5) (5,6) (3,8)
+a "King Street S" (4,2) (4,8)
+a "Davenport Road" (1,4) (5,8)
+g
+c "Weber Street" (2,1) (2,2)
+g
+r "King Street S"
+g
+'''
