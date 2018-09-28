@@ -10,7 +10,7 @@ print(sys.executable)
 print(sys.version_info)
 class Cameraprog(cmd.Cmd):
     intro = 'Welcome to the camera optimizer program. Type help or ? to list commands'
-    prompt = '=->'
+    prompt = '(Assignment 1)=-> '
     use_rawinput = 0
 
     def __init__(self):
@@ -151,9 +151,9 @@ class Graph(object):
         i = 1
         for street, vertices in self.history.iteritems():
             for index, vertex in enumerate(vertices):
-                self.vertices[str(i)] = vertex
+                self.vertices[i] = vertex
                 if index > 0:
-                    self.edges.add(frozenset([str(i-1), str(i)]))
+                    self.edges.add(frozenset([i-1, i]))
                 i += 1
         return
 
@@ -163,10 +163,12 @@ def parse(args):
     street = tmp[0].lower()
     if len(tmp) > 1:
         vertices = ''.join(tmp[1:])
-        # matches (dig, dig) including whitespaces
-        # regex = '\((\s*\d+\s*)?,(\s*\d+\s*)?\)+?'
+        
+        if vertices.count('(') != vertices.count(')'):
+            print('Error: Vertices entered are missing parentheses')
+
         # match everything between '(' and ')'
-        regex = r'\((.+?)\)+?'
+        regex = r'\((.*?)\)+?'
         vertices = re.findall(regex, vertices)
         parsed_vertices = []
         try:        
@@ -176,6 +178,7 @@ def parse(args):
             print('Error: Vertices entered could not be parsed')
             parsed_vertices = None
         
+        #this will crash program. !FIX
         if len(parsed_vertices) == 0:
             print('Error: No valid vertices were entered')
             parsed_vertices = None
