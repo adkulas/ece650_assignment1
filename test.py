@@ -23,5 +23,35 @@ class MyTest(unittest.TestCase):
         result = a1ece650.intersect((0, 5), (5, 5), (0,0), (5, 5))
         self.assertEqual(result, (5.0, 5.0))
 
+    def test_parse_valid_input(self):
+        string = '"King St West" (1,2)(2,3) (5,6)'
+        result = a1ece650.parse(string)
+        self.assertEqual(result, ['king st west', [(1,2),(2,3),(5,6)]])
+
+    def test_parse_valid_input_empty(self):
+        string = '"King St West"'
+        result = a1ece650.parse(string)
+        self.assertEqual(result, ['king st west', None])
+
+    def test_parse_valid_input_empty_2(self):
+        string = '"King St West"       '
+        result = a1ece650.parse(string)
+        self.assertEqual(result, ['king st west', None])
+
+    def test_parse_missing_parentheses(self):
+        string = '"King St West" (1,2)(2,3) 5,6)'
+        result = a1ece650.parse(string)
+        self.assertEqual(result, ['king st west', None])
+    
+    def test_parse_invalid_coord_toofew(self):
+        string = '"King St West" (12)(2,3)(5,6)'
+        result = a1ece650.parse(string)
+        self.assertEqual(result, ['king st west', None])
+    
+    def test_parse_invalid_coord_toomany(self):
+        string = '"King St West" (1,2,3)(2,3)(5,6)'
+        result = a1ece650.parse(string)
+        self.assertEqual(result, ['king st west', None])
+
 if __name__ == '__main__':
     unittest.main()
