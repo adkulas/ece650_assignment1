@@ -163,20 +163,33 @@ def parse(args):
     street = tmp[0].lower()
     if len(tmp) > 1:
         vertices = ''.join(tmp[1:])
-        # matches (dig, dig) including whitespaces
-        # regex = '\((\s*\d+\s*)?,(\s*\d+\s*)?\)+?'
+        
+        #Check all vertices have open and closing parentheses
+        open_paren_count = vertices.count('(')
+        close_paren_count = vertices.count(')')
+        if open_paren_count != close_paren_count:
+            print('Error: Vertices entered are missing a parenthesis')
+            return [street, None]
+
         # match everything between '(' and ')'
-        regex = r'\((.+?)\)+?'
+        regex = r'\((.*?)\)+?'
         vertices = re.findall(regex, vertices)
         parsed_vertices = []
+        
+        # Cast all inputs to tuples of type int
         try:        
             for vertex in vertices:
-                parsed_vertices.append(tuple([int(x) for x in vertex.split(',')]))  
+                coords = vertex.split(',')
+                if len(coords) != 2:
+                    raise Exception
+                parsed_vertices.append(tuple([int(x) for x in coords]))  
         except:
             print('Error: Vertices entered could not be parsed')
-            parsed_vertices = None
+            return [street, None]
         
-        if len(parsed_vertices) == 0:
+        if (len(parsed_vertices) == 0 or
+            len(parsed_vertices) != open_paren_count):
+            
             print('Error: No valid vertices were entered')
             parsed_vertices = None
     else:
