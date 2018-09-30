@@ -92,6 +92,7 @@ class Graph(object):
         self.history = {}
         self.vertices = {}
         self.edges = set([])
+        self.intersections = {}
     
     def __str__(self):
         string = 'V = {\n'
