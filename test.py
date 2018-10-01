@@ -16,7 +16,7 @@ class MyTest(unittest.TestCase):
     def test_intersection_interval(self):
         #Check out of interval
         result = a1ece650.intersect((0, 5), (5, 5), (0, 0), (6, 5))
-        self.assertEqual(result, (None, None))
+        self.assertEqual(result, None)
     
     def test_intersection_endpoint(self):
         #Check endpoint intersect
@@ -26,7 +26,7 @@ class MyTest(unittest.TestCase):
     def test_intersection_overlap(self):
         #Check endpoint intersect
         result = a1ece650.intersect((0, 0), (5, 5), (-1,-1), (6, 6))
-        self.assertEqual(result, (None, None))
+        self.assertEqual(result, None)
 
     def test_parse_valid_input(self):
         string = '"King St West" (1,2)(2,3) (5,6)'

@@ -92,7 +92,8 @@ class Graph(object):
         self.history = {}
         self.vertices = {}
         self.edges = set([])
-        self.intersections = {}
+        self.intersections = set([])
+        self.test = {}
     
     def __str__(self):
         string = 'V = {\n'
@@ -152,10 +153,42 @@ class Graph(object):
         i = 1
         for street, vertices in self.history.iteritems():
             for index, vertex in enumerate(vertices):
-                self.vertices[str(i)] = vertex
+                self.vertices[i] = vertex
                 if index > 0:
-                    self.edges.add(frozenset([str(i-1), str(i)]))
+                    self.edges.add(frozenset([i, i-1]))
                 i += 1
+        return
+
+    def new_render_graph(self):
+        self.vertices = {}
+        self.edges = set([])
+
+        for street, points in self.history.iteritems():
+            new_vertices = points[:]
+            
+            #Loop through all other streets to find intersections
+            for street_2, points_2 in self.history.iteritems():
+                if street != street_2:
+                    for i in xrange(len(points)-1):
+                        for j in xrange(len(points_2)-1):
+                            inter_p = intersect(points[i], points[i+1], points_2[j], points_2[j+1])
+                            if inter_p:
+                                #may duplicate points if intersects at endpoint(FIX)
+                                new_vertices.insert(i+1, inter_p)
+                                self.intersections.add(inter_p)
+            filtered_v = []
+            for index, v in enumerate(new_vertices):
+                if v in self.intersections:
+                    filtered_v.append(new_vertices[index-1])
+                    filtered_v.append(new_vertices[index])
+                    filtered_v.append(new_vertices[index+1])
+
+            
+            
+            self.test[street] = new_vertices
+
+        
+
         return
 
 def parse(args):
@@ -217,9 +250,7 @@ def intersect(p_1, p_2, p_3, p_4):
         xcoor =  xnum / xden    
         ycoor = ynum / yden
     except ZeroDivisionError:
-        xcoor = None
-        ycoor = None
-        return (xcoor, ycoor)
+        return None
 
     seg1_xmin = min(x1,x2)
     seg1_xmax = max(x1,x2)
@@ -234,10 +265,9 @@ def intersect(p_1, p_2, p_3, p_4):
 
     if (xcoor < x_interval[0] or xcoor > x_interval[1] or
         ycoor < y_interval[0] or ycoor > y_interval[1]):
-        xcoor = None
-        ycoor = None
+        return None
 
-    return (xcoor, ycoor)
+    return ( round(xcoor,2), round(ycoor,2) )
 
 def main(args):
     program = Cameraprog()
