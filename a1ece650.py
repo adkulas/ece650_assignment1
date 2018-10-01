@@ -10,7 +10,7 @@ print(sys.executable)
 print(sys.version_info)
 class Cameraprog(cmd.Cmd):
     intro = 'Welcome to the camera optimizer program. Type help or ? to list commands'
-    prompt = '=->'
+    prompt = '(Assignment 1)=-> '
     use_rawinput = 0
 
     def __init__(self):
@@ -155,7 +155,11 @@ class Graph(object):
             for index, vertex in enumerate(vertices):
                 self.vertices[i] = vertex
                 if index > 0:
+<<<<<<< HEAD
                     self.edges.add(frozenset([i, i-1]))
+=======
+                    self.edges.add(frozenset([i-1, i]))
+>>>>>>> ae6757d61950a4f8419525907fadac6b21b87a26
                 i += 1
         return
 
@@ -198,12 +202,17 @@ def parse(args):
     if len(tmp) > 1:
         vertices = ''.join(tmp[1:])
         
+<<<<<<< HEAD
         #Check all vertices have open and closing parentheses
         open_paren_count = vertices.count('(')
         close_paren_count = vertices.count(')')
         if open_paren_count != close_paren_count:
             print('Error: Vertices entered are missing a parenthesis')
             return [street, None]
+=======
+        if vertices.count('(') != vertices.count(')'):
+            print('Error: Vertices entered are missing parentheses')
+>>>>>>> ae6757d61950a4f8419525907fadac6b21b87a26
 
         # match everything between '(' and ')'
         regex = r'\((.*?)\)+?'
@@ -221,9 +230,14 @@ def parse(args):
             print('Error: Vertices entered could not be parsed')
             return [street, None]
         
+<<<<<<< HEAD
         if (len(parsed_vertices) == 0 or
             len(parsed_vertices) != open_paren_count):
             
+=======
+        #this will crash program. !FIX
+        if len(parsed_vertices) == 0:
+>>>>>>> ae6757d61950a4f8419525907fadac6b21b87a26
             print('Error: No valid vertices were entered')
             parsed_vertices = None
     else:
