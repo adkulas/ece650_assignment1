@@ -6,6 +6,7 @@ import cmd
 import argparse
 import re
 import itertools
+import copy
 
 print(sys.executable)
 print(sys.version_info)
@@ -203,8 +204,9 @@ class Graph(object):
             data[street] = {'E': tmp_edges}
 
         #Iterate through all edges to find intersections
-        tmp_data = data.copy()
+        tmp_data = copy.deepcopy(data)
         for street, street_cmp in itertools.permutations(tmp_data.keys(),2):
+            print(street, street_cmp)
             street_edges = list(tmp_data[street]['E'])
             street_cmp_edges = list(tmp_data[street_cmp]['E'])
             for street_edge in street_edges:
@@ -213,12 +215,17 @@ class Graph(object):
                     v3, v4 = list(street_cmp_edge)
                     inter = intersect(tmp_vertices[v1], tmp_vertices[v2], tmp_vertices[v3], tmp_vertices[v4])
                     if inter:
-                        tmp_vertices[i] = inter
-                        tmp_intersections.add(inter)
-                        data[street]['E'].remove(street_edge)
-                        data[street]['E'].add(frozenset([v1,i]))
-                        data[street]['E'].add(frozenset([i,v2]))
-                        i += 1
+                        if inter not in tmp_intersections:
+                            tmp_vertices[i] = inter
+                            tmp_intersections.add(inter)
+                            i += 1
+                        
+                        #find vertex id in vertices dictionary and create new edge
+                        for v_id, coords in tmp_vertices.iteritems():
+                            if coords == inter:    
+                                data[street]['E'].remove(street_edge)
+                                data[street]['E'].add(frozenset([v1, v_id]))
+                                data[street]['E'].add(frozenset([v_id, v2]))
 
         # for edge in self.edges:
         #     for cmp_edge in self.edges:
