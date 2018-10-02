@@ -5,6 +5,7 @@ import shlex
 import cmd
 import argparse
 import re
+import itertools
 
 print(sys.executable)
 print(sys.version_info)
@@ -42,8 +43,6 @@ class Cameraprog(cmd.Cmd):
         """
         This is the help string for the add command
         """
-        print('doing command a with', args)
-        print(parse(args))
         self.graph.add_street(*parse(args))
 
     def do_r(self, args):
@@ -147,7 +146,7 @@ class Graph(object):
         
         return False
 
-    def render_graph(self):
+    def old_render_graph(self):
         self.vertices = {}
         self.edges = set([])
         i = 1
@@ -155,11 +154,7 @@ class Graph(object):
             for index, vertex in enumerate(vertices):
                 self.vertices[i] = vertex
                 if index > 0:
-<<<<<<< HEAD
                     self.edges.add(frozenset([i, i-1]))
-=======
-                    self.edges.add(frozenset([i-1, i]))
->>>>>>> ae6757d61950a4f8419525907fadac6b21b87a26
                 i += 1
         return
 
@@ -186,14 +181,53 @@ class Graph(object):
                     filtered_v.append(new_vertices[index-1])
                     filtered_v.append(new_vertices[index])
                     filtered_v.append(new_vertices[index+1])
-
-            
-            
             self.test[street] = new_vertices
-
-        
-
         return
+    
+    def render_graph(self):
+        self.vertices = {}
+        self.edges = set([])
+        
+        #Build initial polyline of each street with unique id
+        i = 1
+        data = {}
+        tmp_vertices = {}
+        tmp_intersections = set([])
+        for street, points in self.history.iteritems():
+            tmp_edges = set([])
+            for index, point in enumerate(points):
+                tmp_vertices[i] = point
+                if index > 0:
+                    tmp_edges.add(frozenset([i, i-1]))
+                i += 1
+            data[street] = {'E': tmp_edges}
+
+        #Iterate through all edges to find intersections
+        tmp_data = data.copy()
+        for street, street_cmp in itertools.permutations(tmp_data.keys(),2):
+            street_edges = list(tmp_data[street]['E'])
+            street_cmp_edges = list(tmp_data[street_cmp]['E'])
+            for street_edge in street_edges:
+                for street_cmp_edge in street_cmp_edges:
+                    v1, v2 = list(street_edge)
+                    v3, v4 = list(street_cmp_edge)
+                    inter = intersect(tmp_vertices[v1], tmp_vertices[v2], tmp_vertices[v3], tmp_vertices[v4])
+                    if inter:
+                        tmp_vertices[i] = inter
+                        tmp_intersections.add(inter)
+                        data[street]['E'].remove(street_edge)
+                        data[street]['E'].add(frozenset([v1,i]))
+                        data[street]['E'].add(frozenset([i,v2]))
+                        i += 1
+
+        # for edge in self.edges:
+        #     for cmp_edge in self.edges:
+        #         v1, v2 = list(edge)
+        #         v3, v4 = list(cmp_edge)
+        #         inter = intersect(self.vertices[v1], self.vertices[v2], self.vertices[v3], self.vertices[v4])
+        #         print(inter)
+        return
+
 
 def parse(args):
     """return a list [street, [list of points]]"""
@@ -202,17 +236,12 @@ def parse(args):
     if len(tmp) > 1:
         vertices = ''.join(tmp[1:])
         
-<<<<<<< HEAD
         #Check all vertices have open and closing parentheses
         open_paren_count = vertices.count('(')
         close_paren_count = vertices.count(')')
         if open_paren_count != close_paren_count:
             print('Error: Vertices entered are missing a parenthesis')
             return [street, None]
-=======
-        if vertices.count('(') != vertices.count(')'):
-            print('Error: Vertices entered are missing parentheses')
->>>>>>> ae6757d61950a4f8419525907fadac6b21b87a26
 
         # match everything between '(' and ')'
         regex = r'\((.*?)\)+?'
@@ -230,14 +259,9 @@ def parse(args):
             print('Error: Vertices entered could not be parsed')
             return [street, None]
         
-<<<<<<< HEAD
         if (len(parsed_vertices) == 0 or
             len(parsed_vertices) != open_paren_count):
             
-=======
-        #this will crash program. !FIX
-        if len(parsed_vertices) == 0:
->>>>>>> ae6757d61950a4f8419525907fadac6b21b87a26
             print('Error: No valid vertices were entered')
             parsed_vertices = None
     else:
