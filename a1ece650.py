@@ -160,7 +160,7 @@ class Graph(object):
                 i += 1
         return
 
-    def new_render_graph(self):
+    def render_graph(self):
         self.vertices = {}
         self.edges = set([])
 
@@ -168,45 +168,45 @@ class Graph(object):
         intersections = set([])
         for street, points in self.history.iteritems():
             tmp_graph[street] = []
-            
-            #Loop through all other streets to find intersections
-            for street_2, points_2 in self.history.iteritems():
-                if street != street_2:
-                    
-                    # loop through edges of street
-                    for i in xrange(len(points)-1):
-                        # add first point of segement
-                        tmp_graph[street].append(points[i])
 
-                        # loop through other streets
-                        tmp_p_to_add = [] #need this list because can have more than one intersection per segement
+            # loop through edges of street
+            for i in xrange(len(points)-1):
+                # add first point of segement
+                tmp_graph[street].append(points[i])
+                tmp_p_to_add = [] #need this list because can have more than one intersection per segement
+                
+                #Loop through all other streets to find intersections
+                for street_2, points_2 in self.history.iteritems():
+                    if street != street_2:
+                        # loop through other streets segments
                         for j in xrange(len(points_2)-1):
                             inter_p = intersect(points[i], points[i+1], points_2[j], points_2[j+1])
                             if inter_p:
                                 intersections.add(inter_p)
-                                if inter_p != points[i] and inter_p != points[i+1]:
+                                if ( inter_p != points[i] and inter_p != points[i+1] ):
                                     tmp_p_to_add.append(inter_p)
                         
-                        # insert all intersections by order of distance to segment
-                        tmp_dist = [math.sqrt(p[0]**2 + p[1]**2) for p in tmp_p_to_add]
-                        for tmp_p in tmp_p_to_add:
-                            tmp_graph[street].append(tmp_p)
+                # insert all intersections by order of distance to segment
+                if len(tmp_p_to_add) > 1:
+                    tmp_dist = [distance(p, points[i]) for p in tmp_p_to_add]
+                    tmp_dist, tmp_p_to_add = zip(*sorted(zip(tmp_dist, tmp_p_to_add))) # sort the list by distance
+                for tmp_p in tmp_p_to_add:
+                    tmp_graph[street].append(tmp_p)
 
-
-                    #add last point
-                    tmp_graph[street].append(points[i])
-
+            #add last point
+            tmp_graph[street].append(points[-1])
+        
+        # build graph from tmp_graph
+        i = 1
+        for street, vertices in tmp_graph.iteritems():
+            for index, vertex in enumerate(vertices):
+                self.vertices[i] = vertex
+                if index > 0:
+                    self.edges.add(frozenset([i, i-1]))
+                i += 1
         return
-
-        tmp_graph = {}
-        for street, street_cmp in itertools.permutations(history.keys(),2):
-            points_1 = history[street]
-            points_2 = history[street_cmp]
-
-            for i in xrange(len(points_1)):
-                tmp_graph[street]
     
-    def render_graph(self):
+    def rem_render_graph(self):
         self.vertices = {}
         self.edges = set([])
         
@@ -318,6 +318,13 @@ def parse(args):
     parsed_args = [street, parsed_vertices]
  
     return parsed_args
+
+def distance(p1, p2):
+    p1x, p1y = p1
+    p2x, p2y = p2
+
+    dist = math.sqrt((p1x-p2x)**2 + (p1y-p2y)**2)
+    return dist
 
 def intersect(p_1, p_2, p_3, p_4):
     # type: (Tuple[int, int], Tuple[int, int], Tuple[int, int], Tuple[int, int]) -> Tuple[float, float]
