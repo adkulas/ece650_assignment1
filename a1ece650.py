@@ -7,6 +7,7 @@ import argparse
 import re
 import itertools
 import copy
+import math
 
 print(sys.executable)
 print(sys.version_info)
@@ -163,27 +164,47 @@ class Graph(object):
         self.vertices = {}
         self.edges = set([])
 
+        tmp_graph = {}
+        intersections = set([])
         for street, points in self.history.iteritems():
-            new_vertices = points[:]
+            tmp_graph[street] = []
             
             #Loop through all other streets to find intersections
             for street_2, points_2 in self.history.iteritems():
                 if street != street_2:
+                    
+                    # loop through edges of street
                     for i in xrange(len(points)-1):
+                        # add first point of segement
+                        tmp_graph[street].append(points[i])
+
+                        # loop through other streets
+                        tmp_p_to_add = [] #need this list because can have more than one intersection per segement
                         for j in xrange(len(points_2)-1):
                             inter_p = intersect(points[i], points[i+1], points_2[j], points_2[j+1])
                             if inter_p:
-                                #may duplicate points if intersects at endpoint(FIX)
-                                new_vertices.insert(i+1, inter_p)
-                                self.intersections.add(inter_p)
-            filtered_v = []
-            for index, v in enumerate(new_vertices):
-                if v in self.intersections:
-                    filtered_v.append(new_vertices[index-1])
-                    filtered_v.append(new_vertices[index])
-                    filtered_v.append(new_vertices[index+1])
-            self.test[street] = new_vertices
+                                intersections.add(inter_p)
+                                if inter_p != points[i] and inter_p != points[i+1]:
+                                    tmp_p_to_add.append(inter_p)
+                        
+                        # insert all intersections by order of distance to segment
+                        tmp_dist = [math.sqrt(p[0]**2 + p[1]**2) for p in tmp_p_to_add]
+                        for tmp_p in tmp_p_to_add:
+                            tmp_graph[street].append(tmp_p)
+
+
+                    #add last point
+                    tmp_graph[street].append(points[i])
+
         return
+
+        tmp_graph = {}
+        for street, street_cmp in itertools.permutations(history.keys(),2):
+            points_1 = history[street]
+            points_2 = history[street_cmp]
+
+            for i in xrange(len(points_1)):
+                tmp_graph[street]
     
     def render_graph(self):
         self.vertices = {}
@@ -192,40 +213,60 @@ class Graph(object):
         #Build initial polyline of each street with unique id
         i = 1
         data = {}
-        tmp_vertices = {}
-        tmp_intersections = set([])
+        self.vertices = {}
         for street, points in self.history.iteritems():
             tmp_edges = set([])
             for index, point in enumerate(points):
-                tmp_vertices[i] = point
+                self.vertices[i] = point
                 if index > 0:
                     tmp_edges.add(frozenset([i, i-1]))
                 i += 1
-            data[street] = {'E': tmp_edges}
+            data[street] = tmp_edges
 
         #Iterate through all edges to find intersections
-        tmp_data = copy.deepcopy(data)
-        for street, street_cmp in itertools.permutations(tmp_data.keys(),2):
-            print(street, street_cmp)
-            street_edges = list(tmp_data[street]['E'])
-            street_cmp_edges = list(tmp_data[street_cmp]['E'])
+        tmp_intersections = set([])
+        for street, street_cmp in itertools.permutations(data.keys(),2):
+            street_edges = list(data[street])
+            street_cmp_edges = list(data[street_cmp])
             for street_edge in street_edges:
                 for street_cmp_edge in street_cmp_edges:
                     v1, v2 = list(street_edge)
                     v3, v4 = list(street_cmp_edge)
-                    inter = intersect(tmp_vertices[v1], tmp_vertices[v2], tmp_vertices[v3], tmp_vertices[v4])
+                    inter = intersect(self.vertices[v1], self.vertices[v2], self.vertices[v3], self.vertices[v4])
                     if inter:
-                        if inter not in tmp_intersections:
-                            tmp_vertices[i] = inter
+                        # check if intersection is already a vertex in graph
+                        if inter in self.vertices.values():
+                            tmp_intersections.add(inter)
+                        # add it as new vertex
+                        else:
+                            self.vertices[i] = inter
                             tmp_intersections.add(inter)
                             i += 1
+        
+        #Now need to add intersections to the poly line for each street
+        for street, edges in data.iteritems():
+            print(street)
+            new_edges = set([])
+            
+            for edge in edges:
+                v_id_A, v_id_B = list(edge)   
+                points_intersecting = []
+                
+                for point in tmp_intersections:
+                    v_id_A, v_id_B = list(edge)
+                    if point_is_on_line(self.vertices[v_id_A], self.vertices[v_id_B], point):
+                        points_intersecting.append(point)
+                
+
+
+
                         
                         #find vertex id in vertices dictionary and create new edge
-                        for v_id, coords in tmp_vertices.iteritems():
-                            if coords == inter:    
-                                data[street]['E'].remove(street_edge)
-                                data[street]['E'].add(frozenset([v1, v_id]))
-                                data[street]['E'].add(frozenset([v_id, v2]))
+                        # for v_id, coords in self.vertices.iteritems():
+                        #     if coords == inter:    
+                        #         data[street]['E'].remove(street_edge)
+                        #         data[street]['E'].add(frozenset([v1, v_id]))
+                        #         data[street]['E'].add(frozenset([v_id, v2]))
 
         # for edge in self.edges:
         #     for cmp_edge in self.edges:
@@ -313,6 +354,30 @@ def intersect(p_1, p_2, p_3, p_4):
         return None
 
     return ( round(xcoor,2), round(ycoor,2) )
+
+def point_is_on_line(A, B, point):
+    Ax, Ay = A
+    Bx, By = B
+    Px, Py = point
+
+    # check vertical line
+    if Ax == Bx:
+        if (Px == Ax and
+        Py >= min(Ay, By) and Py <= max(Ay, By)):
+            return True
+        else:
+            return False
+    # y = mx + b
+    else:
+        m = (By - Ay)/(Bx - Ax)
+        b = Ay - m * Ax
+
+    if (Py == m * Px + b and
+        Px >= min(Ax, Bx) and Px <= max(Ax, Bx) and
+        Py >= min(Ay, By) and Py <= max(Ay, By)):
+        return True
+    else:
+        return False
 
 def main(args):
     program = Cameraprog()
