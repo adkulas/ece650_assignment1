@@ -188,6 +188,7 @@ class Graph(object):
                         
                 # insert all intersections by order of distance to segment
                 if len(tmp_p_to_add) > 1:
+                    tmp_p_to_add = list(set(tmp_p_to_add)) # remove duplicates
                     tmp_dist = [distance(p, points[i]) for p in tmp_p_to_add]
                     tmp_dist, tmp_p_to_add = zip(*sorted(zip(tmp_dist, tmp_p_to_add))) # sort the list by distance
                 for tmp_p in tmp_p_to_add:
@@ -199,11 +200,22 @@ class Graph(object):
         # build graph from tmp_graph
         i = 1
         for street, vertices in tmp_graph.iteritems():
+            prev = 0
             for index, vertex in enumerate(vertices):
-                self.vertices[i] = vertex
-                if index > 0:
-                    self.edges.add(frozenset([i, i-1]))
-                i += 1
+                # if vertex doesnt exist, add it
+                if vertex not in self.vertices.values():
+                    self.vertices[i] = vertex
+                    if index > 0:
+                        self.edges.add(frozenset([i, prev]))
+                    prev = i
+                    i += 1
+                # if vertex exists then find the vertex id
+                else:
+                    for v_id, val in self.vertices.iteritems():
+                        if vertex == val:
+                            if index > 0:
+                                self.edges.add(frozenset([v_id, prev]))
+                                prev = v_id
         return
     
     def rem_render_graph(self):
