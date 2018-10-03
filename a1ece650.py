@@ -171,8 +171,6 @@ class Graph(object):
 
             # loop through edges of street
             for i in xrange(len(points)-1):
-                # add first point of segement
-                tmp_graph[street].append(points[i])
                 tmp_p_to_add = [] #need this list because can have more than one intersection per segement
                 
                 #Loop through all other streets to find intersections
@@ -186,6 +184,13 @@ class Graph(object):
                                 if ( inter_p != points[i] and inter_p != points[i+1] ):
                                     tmp_p_to_add.append(inter_p)
                         
+                # add first point of segement if valid
+                if (points[i] in intersections
+                        or points[i+1] in intersections
+                        or inter_p
+                        or (tmp_graph[street] or [None])[-1] in intersections):
+                    tmp_graph[street].append(points[i])
+
                 # insert all intersections by order of distance to segment
                 if len(tmp_p_to_add) > 1:
                     tmp_p_to_add = list(set(tmp_p_to_add)) # remove duplicates
@@ -194,8 +199,9 @@ class Graph(object):
                 for tmp_p in tmp_p_to_add:
                     tmp_graph[street].append(tmp_p)
 
-            #add last point
-            tmp_graph[street].append(points[-1])
+            #add last point if valid
+            if (tmp_graph[street][-1] in intersections):
+                tmp_graph[street].append(points[-1])
         
         # build graph from tmp_graph
         i = 1
