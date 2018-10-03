@@ -63,7 +63,7 @@ class Cameraprog(cmd.Cmd):
         """
         parsed_args = (parse(args))
         if parsed_args:        
-            self.graph.change_street(*parse_args)
+            self.graph.change_street(*parsed_args)
 
     def do_g(self, args):
         """
@@ -194,7 +194,7 @@ class Graph(object):
                     tmp_graph[street].append(tmp_p)
 
             #add last point if valid
-            if (tmp_graph[street][-1] in intersections):
+            if (tmp_graph[street] or [None])[-1] in intersections:
                 tmp_graph[street].append(points[-1])
         
         # build graph from tmp_graph
