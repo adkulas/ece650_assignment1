@@ -73,7 +73,7 @@ class MyTest(unittest.TestCase):
         graph.add_street('King', [(0,0), (4,4)])
         graph.add_street('Weber', [(0,4), (4,0)])
         graph.render_graph()
-        result = set(graph.vertices.values())
+        result = set(graph.vertices.keys())
         expected = { (0,0), (4,4), (0,4), (4,0), (2,2) }
         print(graph)
         self.assertEqual(result, expected)
@@ -83,7 +83,7 @@ class MyTest(unittest.TestCase):
         graph.add_street('King', [(-1,0), (-1,5)])
         graph.add_street('Weber', [(-1,2), (-1,7)])
         graph.render_graph()
-        result = set(graph.vertices.values())
+        result = set(graph.vertices.keys())
         expected = { (-1,0), (-1,5), (-1,2), (-1,7) }
         print(graph)
         self.assertEqual(result, expected)
@@ -93,7 +93,7 @@ class MyTest(unittest.TestCase):
         graph.add_street('King', [(-3,5), (2,0)])
         graph.add_street('Weber', [(-1,3), (1,1)])
         graph.render_graph()
-        result = set(graph.vertices.values())
+        result = set(graph.vertices.keys())
         expected = { (2,0), (-1,3), (1,1), (-3,5) }
         print(graph)
         self.assertEqual(result, expected)

@@ -89,12 +89,12 @@ class Graph(object):
     
     def __str__(self):
         string = 'V = {\n'
-        for k, v in self.vertices.iteritems():
+        for v, v_id in self.vertices.iteritems():
             if type(v[0]) == 'float' or type(v[1]) == 'float':
                 xcoord, ycoord = round(v[0], 2), round(v[1], 2)
             else:
                 xcoord, ycoord = v[0], v[1] 
-            string += '{0}: ({1},{2})\n'.format( k, xcoord, ycoord)
+            string += '{0}: ({1},{2})\n'.format( v_id, xcoord, ycoord)
         string += '}\nE = {\n'
         for edge in self.edges:
             tmp = list(edge)
@@ -124,11 +124,9 @@ class Graph(object):
                 new = set(vertices)
                 removed_vertices = old - new
                 removed_vertices = removed_vertices.union(self.intersections) #also clear all intersections
-                # find ids of v's to remove
+                # find remove from dict
                 for v in removed_vertices:
-                    for v_id, coord in self.vertices.items():
-                        if v == coord:
-                            del self.vertices[v_id]
+                    self.vertices.pop(v, None)
                 self.history[street] = vertices
                 return True
             else:
@@ -145,9 +143,7 @@ class Graph(object):
             removed_vertices = set(self.history[street])
             removed_vertices = removed_vertices.union(self.intersections)
             for v in removed_vertices:
-                for v_id, coord in self.vertices.items():
-                    if v == coord:
-                        del self.vertices[v_id]
+                self.vertices.pop(v)
             del self.history[street]
             return True
         else:
@@ -202,19 +198,21 @@ class Graph(object):
             prev = 0
             for index, vertex in enumerate(vertices):
                 # if vertex doesnt exist, add it
-                if vertex not in self.vertices.values():
-                    self.vertices[i] = vertex
+                if vertex not in self.vertices:
+                    #find an id that isn't used
+                    while i in self.vertices.values():
+                        i +=1
+                    self.vertices[vertex] = i
                     if index > 0:
                         self.edges.add(frozenset([i, prev]))
                     prev = i
-                    i += 1
+
                 # if vertex exists then find the vertex id
                 else:
-                    for v_id, val in self.vertices.iteritems():
-                        if vertex == val:
-                            if index > 0:
-                                self.edges.add(frozenset([v_id, prev]))
-                            prev = v_id
+                    v_id = self.vertices[vertex]
+                    if index > 0:
+                        self.edges.add(frozenset([v_id, prev]))
+                    prev = v_id
         return
     
 def parse(args):
