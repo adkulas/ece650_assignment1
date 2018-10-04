@@ -163,9 +163,8 @@ class Graph(object):
                         for j in xrange(len(points_2)-1):
                             inter_p = intersect(points[i], points[i+1], points_2[j], points_2[j+1])
                             if inter_p:
-                                intersections.add(inter_p)
-                                if ( inter_p != points[i] and inter_p != points[i+1] ):
-                                    tmp_p_to_add.append(inter_p)
+                                [intersections.add(x) for x in inter_p]
+                                [tmp_p_to_add.append(x) for x in inter_p if (x != points[i] and x != points[i+1])]
                         
                 # add first point of segement if valid
                 if (points[i] in intersections
@@ -264,23 +263,12 @@ def distance(p1, p2):
     return dist
 
 def intersect(p_1, p_2, p_3, p_4):
-    # type: (Tuple[int, int], Tuple[int, int], Tuple[int, int], Tuple[int, int]) -> Tuple[float, float]
+    # type: (Tuple[int, int], Tuple[int, int], Tuple[int, int], Tuple[int, int]) -> list[Tuple[float, float] ...]
 
     x1, y1 = p_1[0], p_1[1]
     x2, y2 = p_2[0], p_2[1]
     x3, y3 = p_3[0], p_3[1]
     x4, y4 = p_4[0], p_4[1]
-
-    xnum = ((x1*y2-y1*x2)*(x3-x4) - (x1-x2)*(x3*y4-y3*x4))
-    xden = ((x1-x2)*(y3-y4) - (y1-y2)*(x3-x4))
-
-    ynum = (x1*y2 - y1*x2)*(y3-y4) - (y1-y2)*(x3*y4-y3*x4)
-    yden = (x1-x2)*(y3-y4) - (y1-y2)*(x3-x4)
-    try:
-        xcoor =  xnum / xden    
-        ycoor = ynum / yden
-    except ZeroDivisionError:
-        return None
 
     seg1_xmin = min(x1,x2)
     seg1_xmax = max(x1,x2)
@@ -293,35 +281,47 @@ def intersect(p_1, p_2, p_3, p_4):
     x_interval = (max(seg1_xmin, seg2_xmin), min(seg1_xmax, seg2_xmax))
     y_interval = (max(seg1_ymin, seg2_ymin), min(seg1_ymax, seg2_ymax))
 
+    # check for vertical overlapping lines
+    if x1 == x2 == x3 == x4:
+        pnts = [p_1,p_2,p_3,p_4]
+        intersections = []
+        for pnt in pnts:
+            if y_interval[0] <= pnt[1] <= y_interval[1]:
+                intersections.append(pnt)
+        return intersections
+
+    # check equations of lines
+    elif x1 != x2 and x3 != x4:
+        m1 = (y2-y1)/(x2-x1)
+        b1 = y1-m1*x1
+        m2 = (y4-y3)/(x4-x3)
+        b2 = y3-m2*x3   
+        # check if line equations are equal
+        if m1 == m2 and b1 == b2:
+            pnts = [p_1,p_2,p_3,p_4]
+            intersections = []
+            for pnt in pnts:
+                if (x_interval[0] <= pnt[0] <= x_interval[1] and
+                    y_interval[0] <= pnt[1] <= y_interval[1]):
+                    intersections.append(pnt)
+            return intersections
+
+    xnum = ((x1*y2-y1*x2)*(x3-x4) - (x1-x2)*(x3*y4-y3*x4))
+    xden = ((x1-x2)*(y3-y4) - (y1-y2)*(x3-x4))
+
+    ynum = (x1*y2 - y1*x2)*(y3-y4) - (y1-y2)*(x3*y4-y3*x4)
+    yden = (x1-x2)*(y3-y4) - (y1-y2)*(x3-x4)
+    try:
+        xcoor =  xnum / xden    
+        ycoor = ynum / yden
+    except ZeroDivisionError:
+        return []
+
     if (xcoor < x_interval[0] or xcoor > x_interval[1] or
         ycoor < y_interval[0] or ycoor > y_interval[1]):
-        return None
+        return []
 
-    return ( round(xcoor,2), round(ycoor,2) )
-
-def point_is_on_line(A, B, point):
-    Ax, Ay = A
-    Bx, By = B
-    Px, Py = point
-
-    # check vertical line
-    if Ax == Bx:
-        if (Px == Ax and
-        Py >= min(Ay, By) and Py <= max(Ay, By)):
-            return True
-        else:
-            return False
-    # y = mx + b
-    else:
-        m = (By - Ay)/(Bx - Ax)
-        b = Ay - m * Ax
-
-    if (Py == m * Px + b and
-        Px >= min(Ax, Bx) and Px <= max(Ax, Bx) and
-        Py >= min(Ay, By) and Py <= max(Ay, By)):
-        return True
-    else:
-        return False
+    return [(round(xcoor,2), round(ycoor,2))]
 
 def main(args):
     program = ProgramLoop()
