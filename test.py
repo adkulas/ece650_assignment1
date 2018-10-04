@@ -63,13 +63,29 @@ class MyTest(unittest.TestCase):
         result = a1ece650.parse(string)
         self.assertEqual(result, ['king st west', None])
 
+    def test_parse_invalid_street_name(self):
+        string = '"King St-West" (1,2,3)(2,3)(5,6)'
+        result = a1ece650.parse(string)
+        self.assertEqual(result, None)
+
     def test_render_basic_intersection(self):
         graph = a1ece650.Graph()
         graph.add_street('King', [(0,0), (4,4)])
         graph.add_street('Weber', [(0,4), (4,0)])
         graph.render_graph()
         result = set(graph.vertices.values())
-        expected = set([(0,0), (4,4), (0,4), (4,0), (2,2)])
+        expected = { (0,0), (4,4), (0,4), (4,0), (2,2) }
+        print(graph)
+        self.assertEqual(result, expected)
+
+    def test_render_vertical_overlapping_intersection(self):
+        graph = a1ece650.Graph()
+        graph.add_street('King', [(-1,0), (-1,5)])
+        graph.add_street('Weber', [(-1,2), (-1,7)])
+        graph.render_graph()
+        result = set(graph.vertices.values())
+        expected = { (-1,0), (-1,5), (-1,2), (-1,7) }
+        print(graph)
         self.assertEqual(result, expected)
 
 if __name__ == '__main__':
