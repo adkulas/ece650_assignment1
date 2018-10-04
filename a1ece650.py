@@ -91,7 +91,7 @@ class Graph(object):
         string = 'V = {\n'
         for k, v in self.vertices.iteritems():
             if type(v[0]) == 'float' or type(v[1]) == 'float':
-                xcoord, ycoord = round(v[0], 3), round(v[1], 3)
+                xcoord, ycoord = round(v[0], 2), round(v[1], 2)
             else:
                 xcoord, ycoord = v[0], v[1] 
             string += '{0}: ({1},{2})\n'.format( k, xcoord, ycoord)
