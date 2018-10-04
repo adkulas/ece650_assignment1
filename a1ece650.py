@@ -87,7 +87,6 @@ class Graph(object):
         self.vertices = {}
         self.edges = set([])
         self.intersections = set([])
-        self.test = {}
     
     def __str__(self):
         string = 'V = {\n'
@@ -146,7 +145,7 @@ class Graph(object):
         self.edges = set([])
 
         tmp_graph = {}
-        intersections = set([])
+        self.intersections = set([])
         for street, points in self.history.iteritems():
             tmp_graph[street] = []
 
@@ -161,14 +160,14 @@ class Graph(object):
                         for j in xrange(len(points_2)-1):
                             inter_p = intersect(points[i], points[i+1], points_2[j], points_2[j+1])
                             if inter_p:
-                                [intersections.add(x) for x in inter_p]
+                                [self.intersections.add(x) for x in inter_p]
                                 [tmp_p_to_add.append(x) for x in inter_p if (x != points[i] and x != points[i+1])]
                         
                 # add first point of segement if valid
-                if (points[i] in intersections
-                        or points[i+1] in intersections
+                if (points[i] in self.intersections
+                        or points[i+1] in self.intersections
                         or len(tmp_p_to_add) > 0
-                        or (tmp_graph[street] or [None])[-1] in intersections):
+                        or (tmp_graph[street] or [None])[-1] in self.intersections):
                     tmp_graph[street].append(points[i])
 
                 # insert all intersections by order of distance to segment
@@ -180,7 +179,7 @@ class Graph(object):
                     tmp_graph[street].append(tmp_p)
 
             #add last point if valid
-            if (tmp_graph[street] or [None])[-1] in intersections:
+            if (tmp_graph[street] or [None])[-1] in self.intersections:
                 tmp_graph[street].append(points[-1])
         
         # build graph from tmp_graph
