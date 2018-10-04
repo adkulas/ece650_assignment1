@@ -11,7 +11,7 @@ import math
 
 print(sys.executable)
 print(sys.version_info)
-class Cameraprog(cmd.Cmd):
+class ProgramLoop(cmd.Cmd):
     intro = 'Welcome to the camera optimizer program. Type help or ? to list commands'
     prompt = '(Assignment 1)=-> '
     use_rawinput = 0
@@ -72,28 +72,17 @@ class Cameraprog(cmd.Cmd):
         self.graph.render_graph()
         print(self.graph)
 
-    def precmd(self, line):
-        return line
-
     def postcmd(self, stop, line):
         """Hook method executed just after a command dispatch is finished.""" 
         #If line empty, exit program
         if not line:
             stop = True
         return stop
-    def preloop(self):
-        pass
-
-    def postloop(self):
-        #Cleanup and gracefully exit
-        pass
-
+    
     def default(self, line):
         print('Error: The command you entered was not found')
         print(line)
 
-    def emptyline(self):
-        pass    
 class Graph(object):
     def __init__(self):
         self.history = {}
@@ -225,6 +214,10 @@ def parse(args):
         return None
     tmp = shlex.split(args)
     street = tmp[0].lower()
+    if re.search(r'[^A-Za-z0-9 ]', street):
+        print('Error: Invalid character used in street name')
+        return None
+
     if len(tmp) > 1:
         vertices = ''.join(tmp[1:])
         
@@ -331,7 +324,7 @@ def point_is_on_line(A, B, point):
         return False
 
 def main(args):
-    program = Cameraprog()
+    program = ProgramLoop()
     program.cmdloop()
 
     return 0
