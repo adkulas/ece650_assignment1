@@ -64,7 +64,7 @@ class MyTest(unittest.TestCase):
         self.assertEqual(result, ['king st west', None])
 
     def test_parse_invalid_street_name(self):
-        string = '"King St-West" (1,2,3)(2,3)(5,6)'
+        string = '"King St-West" (1,3)(2,3)(5,6)'
         result = a1ece650.parse(string)
         self.assertEqual(result, None)
 

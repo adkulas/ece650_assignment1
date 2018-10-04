@@ -4,7 +4,6 @@ import sys
 import shlex
 import cmd
 import re
-import itertools
 import math
 
 print(sys.executable)
