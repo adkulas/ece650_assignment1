@@ -3,10 +3,8 @@ from __future__ import division
 import sys
 import shlex
 import cmd
-import argparse
 import re
 import itertools
-import copy
 import math
 
 print(sys.executable)
