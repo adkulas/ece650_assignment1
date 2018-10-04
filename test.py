@@ -88,5 +88,15 @@ class MyTest(unittest.TestCase):
         print(graph)
         self.assertEqual(result, expected)
 
+    def test_render_complete_overlap_intersection(self):
+        graph = a1ece650.Graph()
+        graph.add_street('King', [(-3,5), (2,0)])
+        graph.add_street('Weber', [(-1,3), (1,1)])
+        graph.render_graph()
+        result = set(graph.vertices.values())
+        expected = { (2,0), (-1,3), (1,1), (-3,5) }
+        print(graph)
+        self.assertEqual(result, expected)
+
 if __name__ == '__main__':
     unittest.main()

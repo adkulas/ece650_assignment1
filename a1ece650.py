@@ -121,6 +121,14 @@ class Graph(object):
         # type: (str, List[Tuple(int, int), ...]) -> Bool
         if vertices:
             if street in self.history:
+                old = set(self.history[street])
+                new = set(vertices)
+                removed_vertices = old - new
+                # find ids of v's to remove
+                for v in removed_vertices:
+                    for v_id, coord in self.vertices.items():
+                        if v == coord:
+                            del self.vertices[v_id]
                 self.history[street] = vertices
                 return True
             else:
@@ -133,6 +141,12 @@ class Graph(object):
     def remove_street(self, street, *args):
         # type: (str, List[Tuple(int, int), ...]) -> Bool
         if street in self.history:
+            # find ids of v's to remove
+            removed_vertices = self.history[street]
+            for v in removed_vertices:
+                for v_id, coord in self.vertices.items():
+                    if v == coord:
+                        del self.vertices[v_id]
             del self.history[street]
             return True
         else:
@@ -141,7 +155,7 @@ class Graph(object):
         return False
 
     def render_graph(self):
-        self.vertices = {}
+        # self.vertices = {}
         self.edges = set([])
 
         tmp_graph = {}
