@@ -123,6 +123,7 @@ class Graph(object):
                 old = set(self.history[street])
                 new = set(vertices)
                 removed_vertices = old - new
+                removed_vertices = removed_vertices.union(self.intersections) #also clear all intersections
                 # find ids of v's to remove
                 for v in removed_vertices:
                     for v_id, coord in self.vertices.items():
@@ -141,7 +142,8 @@ class Graph(object):
         # type: (str, List[Tuple(int, int), ...]) -> Bool
         if street in self.history:
             # find ids of v's to remove
-            removed_vertices = self.history[street]
+            removed_vertices = set(self.history[street])
+            removed_vertices = removed_vertices.union(self.intersections)
             for v in removed_vertices:
                 for v_id, coord in self.vertices.items():
                     if v == coord:
@@ -154,11 +156,10 @@ class Graph(object):
         return False
 
     def render_graph(self):
-        # self.vertices = {}
         self.edges = set([])
-
         tmp_graph = {}
         self.intersections = set([])
+
         for street, points in self.history.iteritems():
             tmp_graph[street] = []
 
