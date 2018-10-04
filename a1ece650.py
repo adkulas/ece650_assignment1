@@ -203,7 +203,7 @@ class Graph(object):
                         if vertex == val:
                             if index > 0:
                                 self.edges.add(frozenset([v_id, prev]))
-                                prev = v_id
+                            prev = v_id
         return
     
 def parse(args):
