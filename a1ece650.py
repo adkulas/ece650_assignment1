@@ -120,13 +120,6 @@ class Graph(object):
         # type: (str, List[Tuple(int, int), ...]) -> Bool
         if vertices:
             if street in self.history:
-                old = set(self.history[street])
-                new = set(vertices)
-                removed_vertices = old - new
-                removed_vertices = removed_vertices.union(self.intersections) #also clear all intersections
-                # find remove from dict
-                for v in removed_vertices:
-                    self.vertices.pop(v, None)
                 self.history[street] = vertices
                 return True
             else:
@@ -139,11 +132,6 @@ class Graph(object):
     def remove_street(self, street, *args):
         # type: (str, List[Tuple(int, int), ...]) -> Bool
         if street in self.history:
-            # find ids of v's to remove
-            removed_vertices = set(self.history[street])
-            removed_vertices = removed_vertices.union(self.intersections)
-            for v in removed_vertices:
-                self.vertices.pop(v)
             del self.history[street]
             return True
         else:
@@ -154,7 +142,7 @@ class Graph(object):
     def render_graph(self):
         self.edges = set([])
         tmp_graph = {}
-        self.intersections = set([])
+        tmp_intersections = set([])
 
         for street, points in self.history.iteritems():
             tmp_graph[street] = []
@@ -170,14 +158,14 @@ class Graph(object):
                         for j in xrange(len(points_2)-1):
                             inter_p = intersect(points[i], points[i+1], points_2[j], points_2[j+1])
                             if inter_p:
-                                [self.intersections.add(x) for x in inter_p]
+                                [tmp_intersections.add(x) for x in inter_p]
                                 [tmp_p_to_add.append(x) for x in inter_p if (x != points[i] and x != points[i+1])]
                         
                 # add first point of segement if valid
-                if (points[i] in self.intersections
-                        or points[i+1] in self.intersections
+                if (points[i] in tmp_intersections
+                        or points[i+1] in tmp_intersections
                         or len(tmp_p_to_add) > 0
-                        or (tmp_graph[street] or [None])[-1] in self.intersections):
+                        or (tmp_graph[street] or [None])[-1] in tmp_intersections):
                     tmp_graph[street].append(points[i])
 
                 # insert all intersections by order of distance to segment
@@ -189,10 +177,18 @@ class Graph(object):
                     tmp_graph[street].append(tmp_p)
 
             #add last point if valid
-            if (tmp_graph[street] or [None])[-1] in self.intersections:
+            if (tmp_graph[street] or [None])[-1] in tmp_intersections:
                 tmp_graph[street].append(points[-1])
         
-        # build graph from tmp_graph
+        #remove all points from graph that are not in new graph
+        to_remove = set([])
+        for k,v in tmp_graph.iteritems():
+            [to_remove.add(x) for x in v]
+        to_remove = set(self.vertices.keys()) - tmp_intersections
+        {self.vertices.pop(x) for x in to_remove}
+        self.intersections = tmp_intersections
+
+        # add remaining points that dont yet have an id
         i = 1
         for street, vertices in tmp_graph.iteritems():
             prev = 0
