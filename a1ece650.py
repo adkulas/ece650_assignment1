@@ -89,7 +89,7 @@ class Graph(object):
     
     def __str__(self):
         string = 'V = {\n'
-        for v, v_id in self.vertices.iteritems():
+        for v, v_id in sorted(self.vertices.items(), key=lambda x: x[1]):
             if type(v[0]) == 'float' or type(v[1]) == 'float':
                 xcoord, ycoord = round(v[0], 2), round(v[1], 2)
             else:
