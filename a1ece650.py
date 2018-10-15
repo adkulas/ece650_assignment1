@@ -72,7 +72,7 @@ class ProgramLoop(cmd.Cmd):
     def postcmd(self, stop, line):
         """Hook method executed just after a command dispatch is finished.""" 
         #If line empty, exit program
-        if not line:
+        if(not line or line=='EOF'):
             stop = True
         return stop
     
