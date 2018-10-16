@@ -78,7 +78,11 @@ class ProgramLoop(cmd.Cmd):
         return stop
     
     def default(self, line):
-        print('Error: The command you entered was not found "{0}"'.format(line), file=sys.stderr)
+        if line != 'EOF':
+            print('Error: The command you entered was not found "{0}"'.format(line), file=sys.stderr)
+
+    def emptyline(self):
+        pass
 
 class Graph(object):
     def __init__(self):
