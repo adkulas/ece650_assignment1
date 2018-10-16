@@ -77,8 +77,7 @@ class ProgramLoop(cmd.Cmd):
         return stop
     
     def default(self, line):
-        print('Error: The command you entered was not found')
-        print(line)
+        print('Error: The command you entered was not found "{0}"'.format(line), file=sys.stderr)
 
 class Graph(object):
     def __init__(self):
@@ -107,12 +106,12 @@ class Graph(object):
         # type: (str, List[Tuple(int, int), ...]) -> Bool
         if vertices:
             if street in self.history:
-                print('Error: You already have \"{0}\" in the graph'.format(street))
+                print('Error: You already have \"{0}\" in the graph'.format(street), file=sys.stderr)
             else:
                 self.history[street] = vertices
                 return True
         else:
-            print('Error: a command has no vertices specified')
+            print('Error: a command has no vertices specified', file=sys.stderr)
 
         return False
 
@@ -123,9 +122,9 @@ class Graph(object):
                 self.history[street] = vertices
                 return True
             else:
-                print('Error: c specified for a street \"{0}\" that does not exist'.format(street))
+                print('Error: c specified for a street \"{0}\" that does not exist'.format(street), file=sys.stderr)
         else:
-            print('Error: c command has no vertices specified')
+            print('Error: c command has no vertices specified', file=sys.stderr)
 
         return False
 
@@ -135,7 +134,7 @@ class Graph(object):
             del self.history[street]
             return True
         else:
-            print('Error: r specified for a street \"{0}\" that does not exist'.format(street))
+            print('Error: r specified for a street \"{0}\" that does not exist'.format(street), file=sys.stderr)
         
         return False
 
@@ -214,12 +213,12 @@ class Graph(object):
 def parse(args):
     """return a list [street, [list of points]]"""
     if not args:
-        print('Error: invalid input')
+        print('Error: invalid input', file=sys.stderr)
         return None
     tmp = shlex.split(args)
     street = tmp[0].lower()
     if re.search(r'[^A-Za-z0-9 ]', street):
-        print('Error: Invalid character used in street name')
+        print('Error: Invalid character used in street name', file=sys.stderr)
         return None
 
     if len(tmp) > 1:
@@ -229,7 +228,7 @@ def parse(args):
         open_paren_count = vertices.count('(')
         close_paren_count = vertices.count(')')
         if open_paren_count != close_paren_count:
-            print('Error: Vertices entered are missing a parenthesis')
+            print('Error: Vertices entered are missing a parenthesis', file=sys.stderr)
             return [street, None]
 
         # match everything between '(' and ')'
@@ -245,13 +244,13 @@ def parse(args):
                     raise Exception
                 parsed_vertices.append(tuple([int(x) for x in coords]))  
         except:
-            print('Error: Vertices entered could not be parsed')
+            print('Error: Vertices entered could not be parsed', file=sys.stderr)
             return [street, None]
         
         if (len(parsed_vertices) == 0 or
             len(parsed_vertices) != open_paren_count):
             
-            print('Error: No valid vertices were entered')
+            print('Error: No valid vertices were entered', file=sys.stderr)
             parsed_vertices = None
     else:
         parsed_vertices = None
