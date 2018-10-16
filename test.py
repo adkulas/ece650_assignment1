@@ -41,12 +41,12 @@ class MyTest(unittest.TestCase):
     def test_parse_valid_input_empty(self):
         string = '"King St West"'
         result = a1ece650.parse(string)
-        self.assertEqual(result, ['king st west', None])
+        self.assertEqual(result, ['king st west'])
 
     def test_parse_valid_input_empty_2(self):
         string = '"King St West"       '
         result = a1ece650.parse(string)
-        self.assertEqual(result, ['king st west', None])
+        self.assertEqual(result, ['king st west'])
 
     def test_parse_missing_parentheses(self):
         string = '"King St West" (1,2)(2,3) 5,6)'
@@ -65,6 +65,16 @@ class MyTest(unittest.TestCase):
 
     def test_parse_invalid_street_name(self):
         string = '"King St-West" (1,3)(2,3)(5,6)'
+        result = a1ece650.parse(string)
+        self.assertEqual(result, None)
+
+    def test_parse_invalid_char_in_vertices(self):
+        string = '"King St West" (1.0,3)(2,3)(5,6)'
+        result = a1ece650.parse(string)
+        self.assertEqual(result, ['king st west', None])
+
+    def test_parse_missing_closing_quote(self):
+        string = '"King St West (1,3)(2,3)(5,6)'
         result = a1ece650.parse(string)
         self.assertEqual(result, None)
 

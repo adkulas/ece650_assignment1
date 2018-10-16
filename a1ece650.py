@@ -6,15 +6,13 @@ import cmd
 import re
 import math
 
-print(sys.executable)
 print(sys.version_info)
 class ProgramLoop(cmd.Cmd):
-    intro = 'Welcome to the camera optimizer program. Type help or ? to list commands'
     prompt = '(Assignment 1)=-> '
     use_rawinput = 0
 
     def __init__(self):
-        cmd.Cmd.__init__(self)
+        cmd.Cmd.__init__(self, completekey=None)
         self.graph = Graph()
     
     def parseline(self, line):
@@ -52,7 +50,7 @@ class ProgramLoop(cmd.Cmd):
         """
         parsed_args = (parse(args))
         if parsed_args:
-            self.graph.remove_street(*parsed_args)
+            self.graph.remove_street(parsed_args)
 
     def do_c(self, args):
         """
@@ -66,8 +64,11 @@ class ProgramLoop(cmd.Cmd):
         """
         This is the help string for the graph command
         """
-        self.graph.render_graph()
-        print(self.graph)
+        if not args:
+            self.graph.render_graph()
+            print(self.graph)
+        else:
+            print('Error: Invalid arguments', file=sys.stderr)
 
     def postcmd(self, stop, line):
         """Hook method executed just after a command dispatch is finished.""" 
@@ -128,17 +129,22 @@ class Graph(object):
 
         return False
 
-    def remove_street(self, street, *args):
+    def remove_street(self, args):
         # type: (str, List[Tuple(int, int), ...]) -> Bool
-        if street in self.history:
-            del self.history[street]
-            return True
+        if len(args) == 1:
+            street = args[0]
+            if street in self.history:
+                del self.history[street]
+                return True
+            else:
+                print('Error: r specified for a street \"{0}\" that does not exist'.format(street), file=sys.stderr)
         else:
-            print('Error: r specified for a street \"{0}\" that does not exist'.format(street), file=sys.stderr)
+            print('Error: r command has too many arguments', file=sys.stderr)
         
         return False
 
     def render_graph(self):
+
         self.edges = set([])
         tmp_graph = {}
         tmp_intersections = set([])
@@ -215,7 +221,12 @@ def parse(args):
     if not args:
         print('Error: invalid input', file=sys.stderr)
         return None
-    tmp = shlex.split(args)
+    try:
+        tmp = shlex.split(args)
+    except:
+        print('Error: Invalid input', file=sys.stderr)
+        return None
+
     street = tmp[0].lower()
     if re.search(r'[^A-Za-z0-9 ]', street):
         print('Error: Invalid character used in street name', file=sys.stderr)
@@ -223,6 +234,9 @@ def parse(args):
 
     if len(tmp) > 1:
         vertices = ''.join(tmp[1:])
+        if re.search(r'[^0-9,\(\)\- ]', vertices):
+            print('Error: Invalid character used in vertices', file=sys.stderr)
+            return [street, None]
         
         #Check all vertices have open and closing parentheses
         open_paren_count = vertices.count('(')
@@ -251,13 +265,14 @@ def parse(args):
             len(parsed_vertices) != open_paren_count):
             
             print('Error: No valid vertices were entered', file=sys.stderr)
-            parsed_vertices = None
-    else:
-        parsed_vertices = None
+            return [street, None]
+
+        return [street, parsed_vertices]
     
-    parsed_args = [street, parsed_vertices]
+    else:
+        return [street]
  
-    return parsed_args
+    return False
 
 def distance(p1, p2):
     p1x, p1y = p1
