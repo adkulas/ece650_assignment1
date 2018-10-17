@@ -40,7 +40,7 @@ class ProgramLoop(cmd.Cmd):
         """
         This is the help string for the add command
         """
-        parsed_args = (parse(args))
+        parsed_args = (parse(args, 'do_a'))
         if parsed_args:
             self.graph.add_street(*parsed_args)
 
@@ -48,15 +48,15 @@ class ProgramLoop(cmd.Cmd):
         """
         This is the help string for the remove command
         """
-        parsed_args = (parse(args))
+        parsed_args = (parse(args, 'do_r'))
         if parsed_args:
-            self.graph.remove_street(parsed_args)
+            self.graph.remove_street(*parsed_args)
 
     def do_c(self, args):
         """
         This is the help string for the change command
         """
-        parsed_args = (parse(args))
+        parsed_args = (parse(args, 'do_c'))
         if parsed_args:        
             self.graph.change_street(*parsed_args)
 
@@ -133,17 +133,13 @@ class Graph(object):
 
         return False
 
-    def remove_street(self, args):
+    def remove_street(self, street):
         # type: (str, List[Tuple(int, int), ...]) -> Bool
-        if len(args) == 1:
-            street = args[0]
-            if street in self.history:
-                del self.history[street]
-                return True
-            else:
-                print('Error: r specified for a street \"{0}\" that does not exist'.format(street), file=sys.stderr)
+        if street in self.history:
+            del self.history[street]
+            return True
         else:
-            print('Error: r command has too many arguments', file=sys.stderr)
+            print('Error: r specified for a street \"{0}\" that does not exist'.format(street), file=sys.stderr)
         
         return False
 
@@ -191,7 +187,7 @@ class Graph(object):
         
         #remove all points from graph that are not in new graph
         to_remove = set([])
-        for k,v in tmp_graph.iteritems():
+        for _, v in tmp_graph.iteritems():
             [to_remove.add(x) for x in v]
         to_remove = set(self.vertices.keys()) - tmp_intersections
         {self.vertices.pop(x) for x in to_remove}
@@ -217,23 +213,26 @@ class Graph(object):
 
         return
     
-def parse(args):
+def parse(args, func):
     """return a list [street, [list of points]]"""
     if not args:
         print('Error: invalid input', file=sys.stderr)
-        return None
+        return False
     try:
         tmp = shlex.split(args)
     except:
         print('Error: Invalid input', file=sys.stderr)
-        return None
+        return False
 
     street = tmp[0].lower()
     if re.search(r'[^A-Za-z0-9 ]', street):
         print('Error: Invalid character used in street name', file=sys.stderr)
-        return None
+        return False
 
     if len(tmp) > 1:
+        if func == 'do_r':
+            print('Error: r command has too many arguments', file=sys.stderr)
+            return False
         vertices = ''.join(tmp[1:])
         if re.search(r'[^0-9,\(\)\- ]', vertices):
             print('Error: Invalid character used in vertices', file=sys.stderr)
@@ -266,12 +265,12 @@ def parse(args):
             len(parsed_vertices) != open_paren_count):
             
             print('Error: No valid vertices were entered', file=sys.stderr)
-            return [street, None]
+            return 
 
         return [street, parsed_vertices]
     
     else:
-        return [street]
+        return [street, None]
  
     return False
 
