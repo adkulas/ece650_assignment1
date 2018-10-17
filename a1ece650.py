@@ -133,7 +133,7 @@ class Graph(object):
 
         return False
 
-    def remove_street(self, street):
+    def remove_street(self, street, *args):
         # type: (str, List[Tuple(int, int), ...]) -> Bool
         if street in self.history:
             del self.history[street]
@@ -214,7 +214,9 @@ class Graph(object):
         return
     
 def parse(args, func):
-    """return a list [street, [list of points]]"""
+    """return a list [street, [list of points]]
+        returns False if Error
+    """
     if not args:
         print('Error: invalid input', file=sys.stderr)
         return False
@@ -236,14 +238,14 @@ def parse(args, func):
         vertices = ''.join(tmp[1:])
         if re.search(r'[^0-9,\(\)\- ]', vertices):
             print('Error: Invalid character used in vertices', file=sys.stderr)
-            return [street, None]
+            return False
         
         #Check all vertices have open and closing parentheses
         open_paren_count = vertices.count('(')
         close_paren_count = vertices.count(')')
         if open_paren_count != close_paren_count:
             print('Error: Vertices entered are missing a parenthesis', file=sys.stderr)
-            return [street, None]
+            return False
 
         # match everything between '(' and ')'
         regex = r'\((.*?)\)+?'
@@ -259,13 +261,13 @@ def parse(args, func):
                 parsed_vertices.append(tuple([int(x) for x in coords]))  
         except:
             print('Error: Vertices entered could not be parsed', file=sys.stderr)
-            return [street, None]
+            return False
         
         if (len(parsed_vertices) == 0 or
             len(parsed_vertices) != open_paren_count):
             
             print('Error: No valid vertices were entered', file=sys.stderr)
-            return 
+            return False
 
         return [street, parsed_vertices]
     

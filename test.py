@@ -35,48 +35,48 @@ class MyTest(unittest.TestCase):
 
     def test_parse_valid_input(self):
         string = '"King St West" (1,2)(2,3) (5,6)'
-        result = a1ece650.parse(string)
+        result = a1ece650.parse(string, '')
         self.assertEqual(result, ['king st west', [(1,2),(2,3),(5,6)]])
 
     def test_parse_valid_input_empty(self):
         string = '"King St West"'
-        result = a1ece650.parse(string)
-        self.assertEqual(result, ['king st west'])
+        result = a1ece650.parse(string, '')
+        self.assertEqual(result, ['king st west', None])
 
     def test_parse_valid_input_empty_2(self):
         string = '"King St West"       '
-        result = a1ece650.parse(string)
-        self.assertEqual(result, ['king st west'])
+        result = a1ece650.parse(string, '')
+        self.assertEqual(result, ['king st west', None])
 
     def test_parse_missing_parentheses(self):
         string = '"King St West" (1,2)(2,3) 5,6)'
-        result = a1ece650.parse(string)
-        self.assertEqual(result, ['king st west', None])
+        result = a1ece650.parse(string, '')
+        self.assertEqual(result, False)
     
     def test_parse_invalid_coord_toofew(self):
         string = '"King St West" (12)(2,3)(5,6)'
-        result = a1ece650.parse(string)
-        self.assertEqual(result, ['king st west', None])
+        result = a1ece650.parse(string, '')
+        self.assertEqual(result, False)
     
     def test_parse_invalid_coord_toomany(self):
         string = '"King St West" (1,2,3)(2,3)(5,6)'
-        result = a1ece650.parse(string)
-        self.assertEqual(result, ['king st west', None])
+        result = a1ece650.parse(string, '')
+        self.assertEqual(result, False)
 
     def test_parse_invalid_street_name(self):
         string = '"King St-West" (1,3)(2,3)(5,6)'
-        result = a1ece650.parse(string)
-        self.assertEqual(result, None)
+        result = a1ece650.parse(string, '')
+        self.assertEqual(result, False)
 
     def test_parse_invalid_char_in_vertices(self):
         string = '"King St West" (1.0,3)(2,3)(5,6)'
-        result = a1ece650.parse(string)
-        self.assertEqual(result, ['king st west', None])
+        result = a1ece650.parse(string, '')
+        self.assertEqual(result, False)
 
     def test_parse_missing_closing_quote(self):
         string = '"King St West (1,3)(2,3)(5,6)'
-        result = a1ece650.parse(string)
-        self.assertEqual(result, None)
+        result = a1ece650.parse(string, '')
+        self.assertEqual(result, False)
 
     def test_render_basic_intersection(self):
         graph = a1ece650.Graph()
