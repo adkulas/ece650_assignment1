@@ -6,7 +6,7 @@ import cmd
 import re
 import math
 
-print(sys.version_info)
+# print(sys.version_info)
 class ProgramLoop(cmd.Cmd):
     prompt = '(Assignment 1)=-> '
     use_rawinput = 0
@@ -171,13 +171,13 @@ class Graph(object):
                                 [tmp_p_to_add.append(x) for x in inter_p if (x != points[i] and x != points[i+1])]
                         
                 # add first point of segement if valid
-                if (points[i] in tmp_intersections
-                        or points[i+1] in tmp_intersections
-                        or len(tmp_p_to_add) > 0
-                        or (tmp_graph[street] or [None])[-1] in tmp_intersections):
+                if (points[i] in tmp_intersections #first point is an intersection
+                        or points[i+1] in tmp_intersections #next point is an intersection
+                        or len(tmp_p_to_add) > 0 #there exists an intersection with the segment
+                        or (tmp_graph[street] or [None])[-1] in tmp_intersections): #previous point is an intersection
                     tmp_graph[street].append(points[i])
 
-                # insert all intersections by order of distance to segment
+                # insert all intersections by order of distance to segment if more than one
                 if len(tmp_p_to_add) > 1:
                     tmp_p_to_add = list(set(tmp_p_to_add)) # remove duplicates
                     tmp_dist = [distance(p, points[i]) for p in tmp_p_to_add]
@@ -200,7 +200,7 @@ class Graph(object):
         # add remaining points that dont yet have an id
         i = 1
         for street, vertices in tmp_graph.iteritems():
-            prev = 0
+            prev = None
             for index, vertex in enumerate(vertices):
                 # if vertex doesnt exist, add it
                 if vertex not in self.vertices:
@@ -208,16 +208,13 @@ class Graph(object):
                     while i in self.vertices.values():
                         i +=1
                     self.vertices[vertex] = i
-                    if index > 0:
-                        self.edges.add(frozenset([i, prev]))
-                    prev = i
 
-                # if vertex exists then find the vertex id
-                else:
-                    v_id = self.vertices[vertex]
-                    if index > 0:
-                        self.edges.add(frozenset([v_id, prev]))
-                    prev = v_id
+                # create edge if valid
+                v_id = self.vertices[vertex]
+                if(index > 0 and (vertex in self.intersections or prev in self.intersections) ):
+                    self.edges.add(frozenset([v_id, self.vertices.get(prev)]))
+                prev = vertex
+
         return
     
 def parse(args):
