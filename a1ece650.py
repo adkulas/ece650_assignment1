@@ -8,7 +8,7 @@ import math
 
 # print(sys.version_info)
 class ProgramLoop(cmd.Cmd):
-    prompt = '(Assignment 1)=-> '
+    prompt = '> '
     use_rawinput = 0
 
     def __init__(self):
@@ -98,11 +98,11 @@ class Graph(object):
                 xcoord, ycoord = round(v[0], 2), round(v[1], 2)
             else:
                 xcoord, ycoord = v[0], v[1] 
-            string += '{0}: ({1},{2})\n'.format( v_id, xcoord, ycoord)
+            string += '  {0}: ({1},{2})\n'.format( v_id, xcoord, ycoord)
         string += '}\nE = {\n'
         for edge in self.edges:
             tmp = list(edge)
-            string += '<{0},{1}>,\n'.format(tmp[0],tmp[1])
+            string += '  <{0},{1}>,\n'.format(tmp[0],tmp[1])
         string = string[:-2] + '\n}'
 
         return string
