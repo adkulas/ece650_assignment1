@@ -8,7 +8,7 @@ import math
 
 # print(sys.version_info)
 class ProgramLoop(cmd.Cmd):
-    prompt = '> '
+    prompt = ''
     use_rawinput = 0
 
     def __init__(self):
