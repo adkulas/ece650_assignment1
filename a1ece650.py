@@ -100,10 +100,13 @@ class Graph(object):
                 xcoord, ycoord = v[0], v[1] 
             string += '  {0}: ({1},{2})\n'.format( v_id, xcoord, ycoord)
         string += '}\nE = {\n'
-        for edge in self.edges:
-            tmp = list(edge)
-            string += '  <{0},{1}>,\n'.format(tmp[0],tmp[1])
-        string = string[:-2] + '\n}'
+        if self.edges:
+            for edge in self.edges:
+                tmp = list(edge)
+                string += '  <{0},{1}>,\n'.format(tmp[0],tmp[1])
+            string = string[:-2] + '\n}'
+        else:
+            string += '}'
 
         return string
 
